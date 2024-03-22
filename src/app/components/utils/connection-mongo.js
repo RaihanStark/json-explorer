@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 export async function connectToDatabase() {
   // TODO: Implement Cache
   try {
-    await mongoose.connect("mongodb://localhost:27017/test", {
+    await mongoose.connect(process.env.MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
