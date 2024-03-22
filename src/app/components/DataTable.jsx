@@ -22,54 +22,11 @@ import {
 } from "@nextui-org/react";
 
 import { lazy, useEffect, useState } from "react";
-import Datetime from "react-datetime";
 import { deleteItem, updateItem } from "../actions/database";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
 const ReactJson = lazy(() => import("react-json-view"));
-
-function emptyObjectValues(obj) {
-  const newObj = { ...obj };
-  for (let prop in newObj) {
-    // exclude _id
-    if (prop === "_id") {
-      delete newObj[prop];
-    }
-
-    if (newObj.hasOwnProperty(prop)) {
-      // if string or number
-      if (Array.isArray(newObj[prop])) {
-        newObj[prop] = {
-          type: "array",
-          value: [],
-        };
-      } else if (typeof newObj[prop] === "string") {
-        newObj[prop] = {
-          type: "string",
-          value: "",
-        };
-      } else if (typeof newObj[prop] === "number") {
-        newObj[prop] = {
-          type: "number",
-          value: 0,
-        };
-      } else if (typeof newObj[prop] === "boolean") {
-        newObj[prop] = {
-          type: "boolean",
-          value: false,
-        };
-      } else if (newObj[prop] instanceof Date) {
-        newObj[prop] = {
-          type: "datetime",
-          value: new Date(),
-        };
-      }
-    }
-  }
-
-  return newObj;
-}
 export default function DataTable({
   headers,
   items,
@@ -95,7 +52,6 @@ export default function DataTable({
 
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const itemPlaceholder = emptyObjectValues(items[0]);
   const [updatedItem, setUpdatedItem] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -191,7 +147,7 @@ export default function DataTable({
               100
             </SelectItem>
           </Select>
-          <div className="text-nowrap">
+          <div className="text-nowrap max-w-[500px] w-full">
             {pageMeta} of {totalItems}
           </div>
         </div>

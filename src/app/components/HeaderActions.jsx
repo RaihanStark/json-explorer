@@ -3,7 +3,7 @@
 import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import ImportJSON from "./ImportJSON";
 import ClearData from "./ClearData";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import AddItem from "./AddItem";
@@ -19,13 +19,15 @@ export default function HeaderActions({ headers, headersWithType }) {
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [value] = useDebounce(search, 500);
 
-  const updateParams = () => {
-    const currentParams = new URLSearchParams(searchParams);
-    currentParams.set("search", value);
-    currentParams.set("searchBy", searchBy);
+  const updateParams = useMemo(() => {
+    return () => {
+      const currentParams = new URLSearchParams(searchParams);
+      currentParams.set("search", value);
+      currentParams.set("searchBy", searchBy);
 
-    router.replace(`${pathName}?${currentParams.toString()}`);
-  };
+      router.replace(`${pathName}?${currentParams.toString()}`);
+    };
+  }, [searchBy, value, pathName, router, searchParams]);
 
   useEffect(() => {
     updateParams();
