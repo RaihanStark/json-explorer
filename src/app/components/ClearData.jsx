@@ -10,9 +10,11 @@ import {
 import { clearData } from "../actions/database";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function ClearData() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   return (
     <>
@@ -44,12 +46,15 @@ export default function ClearData() {
                 <Button
                   color="danger"
                   variant="light"
+                  isLoading={isLoading}
                   onPress={async () => {
+                    setIsLoading(true);
                     await clearData();
                     onClose();
                     toast.success("Data cleared successfully", {
                       duration: 7000,
                     });
+                    setIsLoading(false);
                     router.refresh();
                   }}
                 >
