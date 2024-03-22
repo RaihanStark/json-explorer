@@ -16,6 +16,40 @@ export const clearData = async () => {
   await collection.deleteMany({});
 };
 
+export const handleConfig = async (obj) => {
+  await connectToDatabase();
+  const config = await connectToConfigCollection();
+
+  let headers = {};
+
+  Object.keys(obj).forEach((key) => {
+    if (!headers[key]) {
+      // check if object is an array or just object
+      if (Array.isArray(obj[key])) {
+        headers[key] = "array";
+      } else if (typeof obj[key] === "object") {
+        headers[key] = "object";
+      } else {
+        headers[key] = typeof obj[key];
+      }
+    }
+  });
+
+  await config.insertOne({
+    headers,
+  });
+
+  return true;
+};
+
+export const importJSON = async (arrayObj) => {
+  await connectToDatabase();
+  const collection = await connectToWorkCollection();
+  await collection.insertMany(arrayObj, { ordered: false });
+  // await collection.insertOne(arrayObj); //
+  return true;
+};
+
 export const handleJSON = async (arrayObj) => {
   await connectToDatabase();
   const collection = await connectToWorkCollection();
