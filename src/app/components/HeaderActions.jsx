@@ -4,9 +4,9 @@ import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import ImportJSON from "./ImportJSON";
 import ClearData from "./ClearData";
 import { useEffect, useMemo, useState } from "react";
-import { useDebounce } from "use-debounce";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import AddItem from "./AddItem";
+import { useDebouncedCallback } from "use-debounce";
 
 export default function HeaderActions({ headers, headersWithType }) {
   const router = useRouter();
@@ -17,21 +17,16 @@ export default function HeaderActions({ headers, headersWithType }) {
     searchParams.get("searchBy") || "_id",
   );
   const [search, setSearch] = useState(searchParams.get("search") || "");
-  const [value] = useDebounce(search, 500);
 
-  const updateParams = useMemo(() => {
-    return () => {
-      const currentParams = new URLSearchParams(searchParams);
-      currentParams.set("search", value);
-      currentParams.set("searchBy", searchBy);
+  const updateParams = useDebouncedCallback(() => {
+    const currentParams = new URLSearchParams(searchParams);
+    currentParams.set("search", search);
+    currentParams.set("searchBy", searchBy);
+    // TODO: when searching field, the page should be reset to 1
+    currentParams.set("page", 1);
 
-      router.replace(`${pathName}?${currentParams.toString()}`);
-    };
-  }, [searchBy, value, pathName, router, searchParams]);
-
-  useEffect(() => {
-    updateParams();
-  }, [value, updateParams, searchBy]);
+    router.replace(`${pathName}?${currentParams.toString()}`);
+  }, 500);
 
   return (
     <>
@@ -44,7 +39,10 @@ export default function HeaderActions({ headers, headersWithType }) {
                 defaultSelectedKeys={["_id"]}
                 size="sm"
                 className="min-w-[10rem]"
-                onChange={(e) => setSearchBy(e.target.value)}
+                onChange={(e) => {
+                  setSearchBy(e.target.value);
+                  updateParams();
+                }}
                 selectedKeys={[searchBy]}
               >
                 {headers.map((header) => (
@@ -61,6 +59,7 @@ export default function HeaderActions({ headers, headersWithType }) {
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
+                  updateParams();
                 }}
               />
             </>
