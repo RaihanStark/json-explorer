@@ -149,21 +149,20 @@ export default function ImportJSON() {
                     showValueLabel={true}
                   />
                 )}
-                {(isJsonValid &&
-                 !isImporting) ? (
-                    <div>
-                      <p className="text-sm text-green-500">
-                        JSON is valid and ready to import! Please click the
-                        import button.
-                      </p>
-                    </div>,
-                 ) : null}
+                {isJsonValid && !isImporting ? (
+                  <div>
+                    <p className="text-sm text-green-500">
+                      JSON is valid and ready to import! Please click the import
+                      button.
+                    </p>
+                  </div>
+                ) : null}
                 {isImporting && (
                   <div>
                     <p className="text-sm text-red-500">
                       Do not close the site while the JSON is being imported...
                     </p>
-                  </div>,
+                  </div>
                 )}
               </ModalBody>
               <ModalFooter>
