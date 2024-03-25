@@ -25,7 +25,7 @@ export default function HeaderActions({ headers, headersWithType }) {
     // TODO: when searching field, the page should be reset to 1
     currentParams.set("page", 1);
 
-    router.replace(`${pathName}?${currentParams.toString()}`);
+    router.push(`${pathName}?${currentParams.toString()}`);
   }, 500);
 
   return (

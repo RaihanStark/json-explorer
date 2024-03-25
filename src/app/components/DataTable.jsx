@@ -63,7 +63,7 @@ export default function DataTable({
     currentParams.set("page", page);
     currentParams.set("limit", limit);
 
-    router.replace(`${pathName}?${currentParams.toString()}`);
+    router.push(`${pathName}?${currentParams.toString()}`);
   };
 
   return (
