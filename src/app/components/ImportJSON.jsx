@@ -12,7 +12,7 @@ import { jsonrepair } from "jsonrepair";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { handleJSON } from "../actions/database";
+import { handleConfig, handleJSON, importJSON } from "../actions/database";
 
 export default function ImportJSON() {
   const router = useRouter();
@@ -21,6 +21,8 @@ export default function ImportJSON() {
   const [importedData, setImportedData] = useState(null);
   const [isImporting, setIsImporting] = useState(false);
   const [isJsonValid, setIsJsonValid] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [maxProgress, setMaxProgress] = useState(0);
 
   const inputRef = useRef(null);
 
@@ -33,13 +35,74 @@ export default function ImportJSON() {
     }
   }, [isOpen]);
 
+  const importHandler = async () => {
+    if (!importedData) {
+      toast.error("No JSON file is selected! Please try again.", {
+        duration: 7000,
+      });
+      return;
+    }
+
+    setIsImporting(true);
+    setMaxProgress(importedData.length);
+    setProgress(0);
+
+    await handleConfig(importedData[0]);
+    // Calculate chunk size
+    const chunkSize = 4 * 1024 * 1024;
+
+    let allChunks = [];
+
+    let chunkObjects = [];
+
+    for (let i = 1; i < importedData.length; i++) {
+      chunkObjects.push(importedData[i]);
+      if (JSON.stringify(chunkObjects).length > chunkSize) {
+        allChunks.push(chunkObjects);
+        setProgress(i);
+        await importJSON(chunkObjects);
+        chunkObjects = [];
+      }
+    }
+    // await importedData.forEach(async (item) => {
+    //   await importJSON(item);
+    // });
+
+    setIsImporting(false);
+    toast.success("JSON is imported successfully! 🎉", {
+      duration: 7000,
+    });
+    onOpenChange();
+    router.refresh();
+  };
+
   const handleFileOpen = (e) => {
     const file = e.target.files[0];
     const reader = new FileReader();
     setIsImporting(true);
     reader.onload = (e) => {
       const data = e.target.result;
-      setImportedData(data);
+      let json_data;
+      try {
+        json_data = JSON.parse(data);
+      } catch (error) {
+        const repairedData = jsonrepair(data);
+        const repairedDataJson = JSON.parse(repairedData);
+        if (repairedDataJson) {
+          console.log("repairedDataJson", repairedDataJson);
+          setImportedData(repairedDataJson);
+          setIsImporting(false);
+          setIsJsonValid(true);
+          return;
+        }
+        toast.error("Invalid JSON file! Please try again.", {
+          duration: 7000,
+        });
+        setIsImporting(false);
+        return;
+      }
+
+      setImportedData(json_data);
       setIsImporting(false);
       setIsJsonValid(true);
     };
@@ -72,7 +135,19 @@ export default function ImportJSON() {
                   disabled={isImporting}
                 />
                 {isImporting && (
-                  <Progress isIndeterminate color="primary" className="my-3" />
+                  <Progress
+                    color="primary"
+                    className="my-3"
+                    label="Importing..."
+                    maxValue={maxProgress}
+                    value={progress}
+                    formatOptions={{
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0,
+                    }}
+                    valueLabel={progress + "/" + maxProgress}
+                    showValueLabel={true}
+                  />
                 )}
                 {isJsonValid && (
                   <div>
@@ -92,14 +167,7 @@ export default function ImportJSON() {
                   isDisabled={!importedData}
                   isLoading={isImporting}
                   onPress={async () => {
-                    setIsImporting(true);
-                    await handleJSON(importedData);
-                    setIsImporting(false);
-                    toast.success("JSON is imported successfully! 🎉", {
-                      duration: 7000,
-                    });
-                    onOpenChange();
-                    router.refresh();
+                    await importHandler();
                   }}
                 >
                   Import
