@@ -23,6 +23,8 @@ export default function ImportJSON() {
   const [isJsonValid, setIsJsonValid] = useState(false);
   const [progress, setProgress] = useState(0);
   const [maxProgress, setMaxProgress] = useState(0);
+  const [importStatus, setImportStatus] = useState("");
+  const [isError, setIsError] = useState(false);
 
   const inputRef = useRef(null);
 
@@ -47,7 +49,12 @@ export default function ImportJSON() {
     setMaxProgress(importedData.length);
     setProgress(0);
 
+    setImportStatus("Importing Config...");
+
     await handleConfig(importedData[0]);
+
+    setImportStatus("Importing JSON...");
+
     // Calculate chunk size
     const chunkSize = 4 * 1024 * 1024;
 
@@ -59,21 +66,18 @@ export default function ImportJSON() {
       chunkObjects.push(importedData[i]);
       if (JSON.stringify(chunkObjects).length > chunkSize) {
         allChunks.push(chunkObjects);
-        setProgress(i);
-        await importJSON(chunkObjects);
         chunkObjects = [];
       }
+
+      if (allChunks.length > 0) {
+        setProgress(i);
+        await importJSON(allChunks[allChunks.length - 1]);
+        allChunks.pop();
+      }
     }
-    // await importedData.forEach(async (item) => {
-    //   await importJSON(item);
-    // });
 
     setIsImporting(false);
-    toast.success("JSON is imported successfully! 🎉", {
-      duration: 7000,
-    });
-    onOpenChange();
-    router.refresh();
+    setImportStatus("");
   };
 
   const handleFileOpen = (e) => {
@@ -82,6 +86,8 @@ export default function ImportJSON() {
     setIsImporting(true);
     reader.onload = (e) => {
       const data = e.target.result;
+      setIsError(false);
+      setIsJsonValid(false);
       let json_data;
       try {
         json_data = JSON.parse(data);
@@ -89,7 +95,14 @@ export default function ImportJSON() {
         const repairedData = jsonrepair(data);
         const repairedDataJson = JSON.parse(repairedData);
         if (repairedDataJson) {
-          console.log("repairedDataJson", repairedDataJson);
+          if (!repairedDataJson.length) {
+            toast.error("Invalid JSON file! Please try again.", {
+              duration: 7000,
+            });
+            setIsImporting(false);
+            return;
+          }
+
           setImportedData(repairedDataJson);
           setIsImporting(false);
           setIsJsonValid(true);
@@ -99,6 +112,15 @@ export default function ImportJSON() {
           duration: 7000,
         });
         setIsImporting(false);
+        return;
+      }
+
+      if (!json_data.length) {
+        toast.error("Invalid JSON file! Please try again.", {
+          duration: 7000,
+        });
+        setIsImporting(false);
+        setIsError("JSON data should be an array");
         return;
       }
 
@@ -162,7 +184,13 @@ export default function ImportJSON() {
                     <p className="text-sm text-red-500">
                       Do not close the site while the JSON is being imported...
                     </p>
+                    <p className="text-sm text-yellow-500">{importStatus}</p>
                   </div>
+                )}
+                {isError && (
+                  <p className="text-sm text-red-500">
+                    {JSON.stringify(isError)}
+                  </p>
                 )}
               </ModalBody>
               <ModalFooter>
@@ -174,7 +202,21 @@ export default function ImportJSON() {
                   isDisabled={!importedData}
                   isLoading={isImporting}
                   onPress={async () => {
-                    await importHandler();
+                    try {
+                      await importHandler();
+                      toast.success("JSON is imported successfully! 🎉", {
+                        duration: 7000,
+                      });
+                      onOpenChange();
+                      router.refresh();
+                    } catch (error) {
+                      setIsError(error);
+                      console.error(error);
+                      toast.error("An error occurred while importing JSON!", {
+                        duration: 7000,
+                      });
+                      setIsImporting(false);
+                    }
                   }}
                 >
                   Import

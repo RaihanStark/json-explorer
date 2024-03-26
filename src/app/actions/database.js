@@ -20,6 +20,8 @@ export const handleConfig = async (obj) => {
   await connectToDatabase();
   const config = await connectToConfigCollection();
 
+  await config.deleteMany({});
+
   let headers = {};
 
   Object.keys(obj).forEach((key) => {
