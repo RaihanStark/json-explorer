@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 
 export function middleware(request) {
-  console.log("request.cookies", request.cookies.get("password"));
   if (
     request.cookies.has("password") &&
     request.cookies.get("password").value === process.env.PASSWORD

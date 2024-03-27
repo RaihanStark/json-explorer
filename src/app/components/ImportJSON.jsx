@@ -9,13 +9,14 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { jsonrepair } from "jsonrepair";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { handleConfig, handleJSON, importJSON } from "../actions/database";
 
 export default function ImportJSON() {
   const router = useRouter();
+  const pathname = usePathname();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const [importedData, setImportedData] = useState(null);
@@ -36,6 +37,10 @@ export default function ImportJSON() {
       setIsJsonValid(false);
     }
   }, [isOpen]);
+
+  const clearFilters = () => {
+    router.replace(pathname);
+  };
 
   const importHandler = async () => {
     if (!importedData) {
@@ -67,6 +72,9 @@ export default function ImportJSON() {
       if (JSON.stringify(chunkObjects).length > chunkSize) {
         allChunks.push(chunkObjects);
         chunkObjects = [];
+      }
+      if (i === importedData.length - 1) {
+        allChunks.push(chunkObjects);
       }
 
       if (allChunks.length > 0) {
