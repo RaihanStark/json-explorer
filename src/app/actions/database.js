@@ -47,8 +47,8 @@ export const handleConfig = async (obj) => {
 export const importJSON = async (arrayObj) => {
   await connectToDatabase();
   const collection = await connectToWorkCollection();
+
   await collection.insertMany(arrayObj, { ordered: false });
-  // await collection.insertOne(arrayObj); //
   return true;
 };
 

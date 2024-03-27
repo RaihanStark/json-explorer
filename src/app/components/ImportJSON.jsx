@@ -208,7 +208,7 @@ export default function ImportJSON() {
                         duration: 7000,
                       });
                       onOpenChange();
-                      router.refresh();
+                      clearFilters();
                     } catch (error) {
                       setIsError(error);
                       console.error(error);
