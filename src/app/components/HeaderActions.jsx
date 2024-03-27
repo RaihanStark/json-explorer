@@ -16,14 +16,17 @@ export default function HeaderActions({ headers, headersWithType }) {
   const [searchBy, setSearchBy] = useState(
     searchParams.get("searchBy") || "_id",
   );
+  const [conditional, setConditional] = useState(
+    searchParams.get("conditional") || "includes",
+  );
   const [search, setSearch] = useState(searchParams.get("search") || "");
 
   const updateParams = useDebouncedCallback(() => {
     const currentParams = new URLSearchParams(searchParams);
     currentParams.set("search", search);
     currentParams.set("searchBy", searchBy);
-    // TODO: when searching field, the page should be reset to 1
     currentParams.set("page", 1);
+    currentParams.set("condition", conditional);
 
     router.push(`${pathName}?${currentParams.toString()}`);
   }, 500);
@@ -51,6 +54,25 @@ export default function HeaderActions({ headers, headersWithType }) {
                   </SelectItem>
                 ))}
               </Select>
+              <Select
+                label="Condition"
+                defaultSelectedKeys={["includes"]}
+                size="sm"
+                className="min-w-[10rem]"
+                selectedKeys={[conditional]}
+                onChange={(e) => {
+                  setConditional(e.target.value);
+                  updateParams();
+                }}
+              >
+                <SelectItem value="includes" key="includes">
+                  include
+                </SelectItem>
+                <SelectItem value="excludes" key="excludes">
+                  exclude
+                </SelectItem>
+              </Select>
+
               <Input
                 label="Search"
                 size="sm"

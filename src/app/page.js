@@ -19,6 +19,7 @@ export default async function Home({ searchParams }) {
 
   let search = searchParams.search || null;
   let searchBy = searchParams.searchBy || null;
+  let condition = searchParams.condition || null;
 
   // fetching
   const items_response = await getItems(
@@ -26,6 +27,7 @@ export default async function Home({ searchParams }) {
     parseInt(limit),
     searchBy,
     search,
+    condition,
   );
   const items = items_response ? items_response.data : [];
   const totalItems = items_response ? items_response.total : 0;

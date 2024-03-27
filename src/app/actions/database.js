@@ -95,6 +95,7 @@ export const getItems = async (
   pageSize = 5,
   searchBy = null,
   search = null,
+  condition = null,
 ) => {
   const skipCount = (pageNumber - 1) * pageSize;
 
@@ -103,10 +104,18 @@ export const getItems = async (
 
   let filters = {};
 
+  // includes or excludes search
+
   if (searchBy && search) {
-    filters[searchBy] = {
-      $regex: new RegExp(search, "i"),
-    };
+    if (condition === "includes" || condition === null) {
+      filters[searchBy] = {
+        $regex: new RegExp(search, "i"),
+      };
+    } else if (condition === "excludes") {
+      filters[searchBy] = {
+        $regex: new RegExp(`^(?!.*${search}).*`, "i"),
+      };
+    }
   }
 
   const cursor = collection
