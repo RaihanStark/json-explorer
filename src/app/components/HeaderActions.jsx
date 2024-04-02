@@ -4,7 +4,7 @@ import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import ImportJSON from "./ImportJSON";
 import ClearData from "./ClearData";
 import AddItem from "./AddItem";
-import Filter from "@/components/filter";
+import Filter from "./filter";
 
 export default function HeaderActions({ headers, headersWithType }) {
   return (
@@ -19,6 +19,8 @@ export default function HeaderActions({ headers, headersWithType }) {
         <div className="flex items-center gap-3">
           {headers.length > 0 && <AddItem headersWithType={headersWithType} />}
           <ImportJSON />
+
+          <Button color="warning">Export JSON</Button>
           <ClearData />
         </div>
       </div>
