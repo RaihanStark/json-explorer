@@ -12,7 +12,7 @@ import { jsonrepair } from "jsonrepair";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { handleConfig, handleJSON, importJSON } from "../actions/database";
+import { handleConfig, importJSON } from "../actions/database";
 
 export default function ImportJSON() {
   const router = useRouter();

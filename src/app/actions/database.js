@@ -52,44 +52,6 @@ export const importJSON = async (arrayObj) => {
   return true;
 };
 
-export const handleJSON = async (arrayObj) => {
-  await connectToDatabase();
-  const collection = await connectToWorkCollection();
-  const config = await connectToConfigCollection();
-
-  // fix json
-  const data_repair = jsonrepair(arrayObj);
-  const data_json = JSON.parse(data_repair);
-
-  // based on array of object, create a schema for the collection
-  // headers, type (string, datetime, boolean, array of string)
-  // TODO: create a schema for the collection
-  let headers = {};
-
-  data_json.forEach((obj) => {
-    Object.keys(obj).forEach((key) => {
-      if (!headers[key]) {
-        // check if object is an array or just object
-        if (Array.isArray(obj[key])) {
-          headers[key] = "array";
-        } else if (typeof obj[key] === "object") {
-          headers[key] = "object";
-        } else {
-          headers[key] = typeof obj[key];
-        }
-      }
-    });
-  });
-
-  await config.insertOne({
-    headers,
-  });
-
-  await collection.insertMany(data_json, { ordered: false });
-
-  return true;
-};
-
 export const getItems = async (
   pageNumber = 1,
   pageSize = 5,
