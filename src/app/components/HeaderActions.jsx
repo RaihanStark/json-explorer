@@ -4,7 +4,7 @@ import { Button, Input, Select, SelectItem } from "@nextui-org/react";
 import ImportJSON from "./ImportJSON";
 import ClearData from "./ClearData";
 import AddItem from "./AddItem";
-import Filter from "./filter";
+import Filter from "./Filter";
 
 export default function HeaderActions({ headers, headersWithType }) {
   return (
