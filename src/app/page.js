@@ -49,7 +49,7 @@ export default async function Home({ searchParams }) {
   return (
     <div className="mx-auto p-10">
       <HeaderActions headers={headers} headersWithType={headersWithType} />
-      {items.length > 0 ? (
+      {items.length > 0 && headers.length > 0 ? (
         <DataTable
           headers={headers}
           items={items}
