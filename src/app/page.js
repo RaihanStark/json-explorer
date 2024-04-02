@@ -1,6 +1,6 @@
 import DataTable from "./components/DataTable";
 import HeaderActions from "./components/HeaderActions";
-import { getHeaders, getItems, getTotalDocument } from "./actions/database";
+import { getHeaders, getItems } from "./actions/database";
 
 export default async function Home({ searchParams }) {
   let { page, limit } = searchParams;
@@ -17,18 +17,8 @@ export default async function Home({ searchParams }) {
     limit = 100;
   }
 
-  let search = searchParams.search || null;
-  let searchBy = searchParams.searchBy || null;
-  let condition = searchParams.condition || null;
-
   // fetching
-  const items_response = await getItems(
-    page,
-    parseInt(limit),
-    searchBy,
-    search,
-    condition,
-  );
+  const items_response = await getItems(page, parseInt(limit), searchParams);
   const items = items_response ? items_response.data : [];
   const totalItems = items_response ? items_response.total : 0;
 

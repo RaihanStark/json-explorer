@@ -1,5 +1,4 @@
 "use server";
-import { jsonrepair } from "jsonrepair";
 import {
   connectToConfigCollection,
   connectToDatabase,
@@ -55,9 +54,7 @@ export const importJSON = async (arrayObj) => {
 export const getItems = async (
   pageNumber = 1,
   pageSize = 5,
-  searchBy = null,
-  search = null,
-  condition = null,
+  searchParams = null,
 ) => {
   const skipCount = (pageNumber - 1) * pageSize;
 
@@ -66,19 +63,32 @@ export const getItems = async (
 
   let filters = {};
 
-  // includes or excludes search
+  if (searchParams) {
+    for (const key in searchParams) {
+      if (key.startsWith("search[")) {
+        const index = key.match(/\d+/)[0];
+        const field = searchParams[`searchBy[${index}]`];
+        const condition = searchParams[`condition[${index}]`];
+        const value = searchParams[key];
 
-  if (searchBy && search) {
-    if (condition === "includes" || condition === null) {
-      filters[searchBy] = {
-        $regex: new RegExp(search, "i"),
-      };
-    } else if (condition === "excludes") {
-      filters[searchBy] = {
-        $regex: new RegExp(`^(?!.*${search}).*`, "i"),
-      };
+        if (value === "") {
+          continue;
+        }
+
+        if (condition === "includes") {
+          filters[field] = {
+            $regex: new RegExp(value, "i"),
+          };
+        } else if (condition === "excludes") {
+          filters[field] = {
+            $regex: new RegExp(`^(?!.*${value}).*`, "i"),
+          };
+        }
+      }
     }
   }
+
+  console.log(filters);
 
   const cursor = collection
     .find(filters)
