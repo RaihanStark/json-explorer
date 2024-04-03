@@ -11,6 +11,7 @@ import { clearData } from "../actions/database";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { MdDeleteForever } from "react-icons/md";
 
 export default function ClearData() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -18,7 +19,11 @@ export default function ClearData() {
   const router = useRouter();
   return (
     <>
-      <Button color="danger" onPress={onOpenChange}>
+      <Button
+        color="danger"
+        onPress={onOpenChange}
+        startContent={<MdDeleteForever />}
+      >
         Clear Data
       </Button>
       <Modal
