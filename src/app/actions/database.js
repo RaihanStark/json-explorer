@@ -5,6 +5,8 @@ import {
   connectToWorkCollection,
 } from "../components/utils/connection-mongo";
 import mongoose from "mongoose";
+import fs from "fs/promises";
+import path from "path";
 
 export const clearData = async () => {
   await connectToDatabase();
@@ -88,8 +90,6 @@ export const getItems = async (
     }
   }
 
-  console.log(filters);
-
   const cursor = collection
     .find(filters)
     .sort({ _id: -1 })
@@ -102,6 +102,53 @@ export const getItems = async (
     ),
     total: await collection.countDocuments(filters),
   };
+};
+
+export const downloadJSON = async (searchParams) => {
+  await connectToDatabase();
+  const collection = await connectToWorkCollection();
+
+  let filters = {};
+
+  if (searchParams) {
+    for (const key in searchParams) {
+      if (key.startsWith("search[")) {
+        const index = key.match(/\d+/)[0];
+        const field = searchParams[`searchBy[${index}]`];
+        const condition = searchParams[`condition[${index}]`];
+        const value = searchParams[key];
+
+        if (value === "") {
+          continue;
+        }
+
+        if (condition === "includes") {
+          filters[field] = {
+            $regex: new RegExp(value, "i"),
+          };
+        } else if (condition === "excludes") {
+          filters[field] = {
+            $regex: new RegExp(`^(?!.*${value}).*`, "i"),
+          };
+        }
+      }
+    }
+  }
+
+  const cursor = collection.find(filters);
+
+  const result = await cursor.toArray();
+
+  const directory = path.join(process.cwd(), "public", "download");
+  await fs.mkdir(directory, { recursive: true });
+
+  // save to file .json
+  const filePath = path.join(directory, "data.json");
+  await fs.writeFile(filePath, JSON.stringify(result));
+
+  const downloadUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/download/data.json`;
+
+  return downloadUrl;
 };
 
 export const updateItem = async (id, body) => {

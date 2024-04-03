@@ -13,6 +13,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { handleConfig, importJSON } from "../actions/database";
+import { BiImport } from "react-icons/bi";
 
 export default function ImportJSON() {
   const router = useRouter();
@@ -141,7 +142,7 @@ export default function ImportJSON() {
 
   return (
     <>
-      <Button color="warning" onPress={onOpen}>
+      <Button color="warning" onPress={onOpen} startContent={<BiImport />}>
         Import JSON
       </Button>
       <Modal

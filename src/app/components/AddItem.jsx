@@ -1,78 +1,19 @@
 import {
   Button,
-  Input,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
-  Switch,
   useDisclosure,
 } from "@nextui-org/react";
 import { lazy, useEffect, useState } from "react";
 import { addItem } from "../actions/database";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { FaPlus } from "react-icons/fa6";
 
 const ReactJson = lazy(() => import("react-json-view"));
-
-const renderInputs = (obj, setForms) => {
-  const newObj = { ...obj };
-  const inputs = [];
-  for (let prop in newObj) {
-    if (newObj.hasOwnProperty(prop)) {
-      if (newObj[prop] === "string") {
-        inputs.push(
-          <Input
-            label={prop + " (string)"}
-            labelPlacement="outside"
-            placeholder={"Please enter your " + prop}
-            value={newObj[prop].value}
-            onChange={(e) => {
-              setForms((prev) => ({
-                ...prev,
-                [prop]: e.target.value,
-              }));
-            }}
-          />,
-        );
-      } else if (newObj[prop] === "number") {
-        inputs.push(
-          <Input
-            label={prop + " (number)"}
-            labelPlacement="outside"
-            placeholder={"Please enter your " + prop}
-            value={newObj[prop].value}
-            onChange={(e) => {
-              setForms((prev) => ({
-                ...prev,
-                [prop]: e.target.value,
-              }));
-            }}
-          />,
-        );
-      } else if (newObj[prop] === "boolean") {
-        inputs.push(<Switch>{prop}</Switch>);
-      } else if (newObj[prop] === "array") {
-        inputs.push(
-          <div>
-            <Input
-              label={prop + " (array)"}
-              placeholder={"Please enter your " + prop}
-              labelPlacement="outside"
-              value={newObj[prop].value}
-            />
-            <Button color="primary" className="mt-5 mb-3">
-              Add new {prop} item
-            </Button>
-          </div>,
-        );
-      }
-    }
-  }
-
-  return inputs;
-};
 
 export default function AddItem({ headersWithType }) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -105,7 +46,7 @@ export default function AddItem({ headersWithType }) {
 
   return (
     <div>
-      <Button color="primary" onPress={onOpen}>
+      <Button color="primary" onPress={onOpen} startContent={<FaPlus />}>
         Add Item
       </Button>
       <Modal
